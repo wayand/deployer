@@ -1,4 +1,4 @@
-# Go Deploy Hook
+# Go deployer Hook
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/wayand/deployer)](https://goreportcard.com/report/github.com/wayand/deployer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
