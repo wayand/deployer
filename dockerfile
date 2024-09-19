@@ -25,6 +25,10 @@ WORKDIR /app/
 # Install bash, docker-cli, and Docker Compose
 RUN apk --no-cache add git bash docker-cli curl openssh
 
+# Add GitHub to known hosts (to avoid "authenticity of host" prompt)
+RUN mkdir -p /root/.ssh && \
+    ssh-keyscan github.com >> /root/.ssh/known_hosts
+
 # Install Docker Compose as a standalone binary
 RUN curl -L "https://github.com/docker/compose/releases/download/v2.29.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
     chmod +x /usr/local/bin/docker-compose
