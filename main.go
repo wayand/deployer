@@ -3,26 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
-
-	"github.com/joho/godotenv"
 )
 
 // Payload structure for GitHub push events
 type Payload struct {
 	Ref string `json:"ref"`
-}
-
-
-// Load environment variables
-func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
 }
 
 func deployHandler(project string) http.HandlerFunc {
