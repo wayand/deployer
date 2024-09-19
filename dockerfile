@@ -23,7 +23,7 @@ FROM alpine:latest
 WORKDIR /app/
 
 # Install bash, docker-cli, and Docker Compose
-RUN apk --no-cache add git bash docker-cli curl
+RUN apk --no-cache add git bash docker-cli curl openssh
 
 # Install Docker Compose as a standalone binary
 RUN curl -L "https://github.com/docker/compose/releases/download/v2.29.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
