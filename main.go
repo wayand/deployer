@@ -42,10 +42,10 @@ func deployHandler(project string) http.HandlerFunc {
             `, projectPath)
 			cmd := exec.Command("bash", "-c", cmdText)
 
-			// Execute the deployment script
+			// Execute the deployment scripts
 			if err := cmd.Run(); err != nil {
+				fmt.Println("Error deploying: ", project, err)
 				fmt.Println("we try to run this command: ", cmdText)
-				fmt.Printf("Error deploying %s: %v", payload, err)
 				http.Error(w, fmt.Sprintf("Error deploying %s: %v", project, err), http.StatusInternalServerError)
 				return
 			}

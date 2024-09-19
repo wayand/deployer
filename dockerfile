@@ -22,8 +22,9 @@ FROM alpine:latest
 # Set the working directory inside the container
 WORKDIR /app/
 
-# Install bash and Docker dependencies in the runtime stage
-RUN apk --no-cache add git bash docker-cli
+# Install bash, docker-cli, and Docker Compose
+RUN apk --no-cache add git bash docker-cli py-pip && \
+    pip install docker-compose
 
 # Copy the built binary from the previous build stage
 COPY --from=build /app/webhook .
