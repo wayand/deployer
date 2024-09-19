@@ -40,6 +40,10 @@ func deployHandler(project string) http.HandlerFunc {
 			// Command to pull the latest code and redeploy using Docker Compose or any other method
 			cmdText := fmt.Sprintf(`
                 cd %s &&
+				sudo chown -R root:root . &&
+				sudo chmod -R 755 . &&
+				git reset --hard &&
+				git clean -fd &&
                 git pull origin master &&
                 docker-compose down &&
                 docker-compose up -d --build
