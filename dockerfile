@@ -23,8 +23,11 @@ FROM alpine:latest
 WORKDIR /app/
 
 # Install bash, docker-cli, and Docker Compose
-RUN apk --no-cache add git bash docker-cli py-pip && \
-    pip install docker-compose
+RUN apk --no-cache add git bash docker-cli curl
+
+# Install Docker Compose as a standalone binary
+RUN curl -L "https://github.com/docker/compose/releases/download/v2.29.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
+    chmod +x /usr/local/bin/docker-compose
 
 # Copy the built binary from the previous build stage
 COPY --from=build /app/webhook .
