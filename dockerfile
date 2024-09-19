@@ -22,8 +22,10 @@ FROM alpine:latest
 # Set the working directory inside the container
 WORKDIR /app/
 
+# Install bash and Docker dependencies in the runtime stage
+RUN apk --no-cache add bash docker-cli
+
 # Copy the built binary from the previous build stage
-COPY --from=build /app/.env .
 COPY --from=build /app/webhook .
 
 # Expose port 9000 for the webhook listener
