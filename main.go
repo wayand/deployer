@@ -17,6 +17,7 @@ func deployHandler(project string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var payload Payload
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			fmt.Printf("Bad request for project %s: %v", project, err)
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -25,6 +26,7 @@ func deployHandler(project string) http.HandlerFunc {
 		if payload.Ref == "refs/heads/master" {
 			projectsFolder := os.Getenv("PROJECTS_FOLDER")
 			if projectsFolder == "" {
+				fmt.Println("PROJECTS_FOLDER is not set")
 				http.Error(w, "PROJECTS_FOLDER is not set", http.StatusInternalServerError)
 				return
 			}
@@ -32,24 +34,28 @@ func deployHandler(project string) http.HandlerFunc {
 			// Define the folder based on the project and the environment variable
 			projectPath := fmt.Sprintf("%s/%s", projectsFolder, project)
 			// Command to pull the latest code and redeploy using Docker Compose or any other method
-			cmd := exec.Command("bash", "-c", fmt.Sprintf(`
+			cmdText := fmt.Sprintf(`
                 cd %s &&
                 git pull origin master &&
                 docker-compose down &&
                 docker-compose up -d --build
-            `, projectPath))
+            `, projectPath)
+			cmd := exec.Command("bash", "-c", cmdText)
 
 			// Execute the deployment script
 			if err := cmd.Run(); err != nil {
+				fmt.Println("we try to run this command: ", cmdText)
+				fmt.Printf("Error deploying %s: %v", payload, err)
 				http.Error(w, fmt.Sprintf("Error deploying %s: %v", project, err), http.StatusInternalServerError)
 				return
 			}
 
+			fmt.Printf("Deployment for %s successful", project)
 			fmt.Fprintf(w, "Deployment for %s successful", project)
 		} else {
+			fmt.Println("Not a master branch push")
 			fmt.Fprintf(w, "Not a master branch push")
 		}
-		fmt.Println("payload: ", payload)
 	}
 }
 
