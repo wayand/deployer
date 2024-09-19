@@ -33,6 +33,10 @@ func deployHandler(project string) http.HandlerFunc {
 
 			// Define the folder based on the project and the environment variable
 			projectPath := fmt.Sprintf("%s/%s", projectsFolder, project)
+
+			// Mark the project directory as safe for Git operations
+			exec.Command("git", "config", "--global", "--add", "safe.directory", projectPath).Run()
+
 			// Command to pull the latest code and redeploy using Docker Compose or any other method
 			cmdText := fmt.Sprintf(`
                 cd %s &&
