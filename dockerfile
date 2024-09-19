@@ -23,7 +23,7 @@ FROM alpine:latest
 WORKDIR /app/
 
 # Install bash and Docker dependencies in the runtime stage
-RUN apk --no-cache add bash docker-cli
+RUN apk --no-cache add git bash docker-cli
 
 # Copy the built binary from the previous build stage
 COPY --from=build /app/webhook .
