@@ -34,27 +34,37 @@ func deployHandler(project string) http.HandlerFunc {
 			// Define the folder based on the project and the environment variable
 			projectPath := fmt.Sprintf("%s/%s", projectsFolder, project)
 
+			token := os.Getenv("GITHUB_TOKEN")
+			if token == "" {
+				fmt.Println("token is not set")
+				http.Error(w, "token is not set", http.StatusInternalServerError)
+				return
+			}
+
 			// Mark the project directory as safe for Git operations
 			exec.Command("git", "config", "--global", "--add", "safe.directory", projectPath).Run()
+
+			// GitHub repo URL using HTTPS and the token for authentication
+			repoURL := fmt.Sprintf("https://%s@github.com/your-username/%s.git", token, project)
 
 			// Command to pull the latest code and redeploy using Docker Compose or any other method
 			cmdText := fmt.Sprintf(`
                 cd %s &&
-				sudo chown -R root:root . &&
-				sudo chmod -R 755 . &&
+				git remote set-url origin %s &&
 				git reset --hard &&
 				git clean -fd &&
                 git pull origin master &&
                 docker-compose down &&
                 docker-compose up -d --build
-            `, projectPath)
+            `, projectPath, repoURL)
 			cmd := exec.Command("bash", "-c", cmdText)
 
 			// Execute the deployment scripts
-			if err := cmd.Run(); err != nil {
-				fmt.Println("Error deploying: ", project, err)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				fmt.Println(fmt.Sprintf("Error deploying %s: %v\n%s", project, err, string(output)))
 				fmt.Println("we try to run this command: ", cmdText)
-				http.Error(w, fmt.Sprintf("Error deploying %s: %v", project, err), http.StatusInternalServerError)
+				http.Error(w, fmt.Sprintf("Error deploying %s: %v\n%s", project, err, string(output)), http.StatusInternalServerError)
 				return
 			}
 
