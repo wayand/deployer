@@ -12,5 +12,5 @@ services:
     volumes:
       - ${PROJECTS_FOLDER}:${PROJECTS_FOLDER}           # Mount the projects folder
       - /var/run/docker.sock:/var/run/docker.sock  # Give access to the Docker socket
-      - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro        # Mount the private key
-      - ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub:ro # Mount the public key
+      # - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro        # Mount the private key
+      # - ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub:ro # Mount the public key

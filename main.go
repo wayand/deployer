@@ -35,9 +35,10 @@ func deployHandler(project string) http.HandlerFunc {
 			projectPath := fmt.Sprintf("%s/%s", projectsFolder, project)
 
 			token := os.Getenv("GITHUB_TOKEN")
-			if token == "" {
-				fmt.Println("token is not set")
-				http.Error(w, "token is not set", http.StatusInternalServerError)
+			user := os.Getenv("GITHUB_USER")
+			if token == "" || user == "" {
+				fmt.Println("token or user is not set")
+				http.Error(w, "token or user is not set", http.StatusInternalServerError)
 				return
 			}
 
@@ -45,7 +46,7 @@ func deployHandler(project string) http.HandlerFunc {
 			exec.Command("git", "config", "--global", "--add", "safe.directory", projectPath).Run()
 
 			// GitHub repo URL using HTTPS and the token for authentication
-			repoURL := fmt.Sprintf("https://%s@github.com/your-username/%s.git", token, project)
+			repoURL := fmt.Sprintf("https://%s@github.com/%s/%s.git", token, user, project)
 
 			// Command to pull the latest code and redeploy using Docker Compose or any other method
 			cmdText := fmt.Sprintf(`
