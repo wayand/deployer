@@ -52,9 +52,9 @@ func deployHandler(project string) http.HandlerFunc {
 			cmdText := fmt.Sprintf(`
                 cd %s &&
 				git remote set-url origin %s &&
-				git reset --hard &&
 				git clean -fd &&
-                git pull origin master &&
+                git fetch --depth=1 origin master &&
+				git reset --hard FETCH_HEAD &&
                 docker-compose down &&
                 docker-compose up -d --build
             `, projectPath, repoURL)
