@@ -10,6 +10,7 @@ services:
       - PROJECTS_FOLDER=${PROJECTS_FOLDER}  # Path to where the project folders are located
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GITHUB_USER=${GITHUB_USER}
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
     volumes:
       - ${PROJECTS_FOLDER}:${PROJECTS_FOLDER}           # Mount the projects folder
       - /var/run/docker.sock:/var/run/docker.sock  # Give access to the Docker socket

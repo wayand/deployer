@@ -1,8 +1,12 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -13,11 +17,27 @@ type Payload struct {
 	Ref string `json:"ref"`
 }
 
+// Function to verify the HMAC signature
+func verifySignature(secret, signature string, body []byte) bool {
+	// Create a new HMAC by defining the hash type and the secret key
+	h := hmac.New(sha256.New, []byte(secret))
+
+	// Write the body to it
+	h.Write(body)
+
+	// Get the final HMAC SHA256 code
+	expectedMAC := hex.EncodeToString(h.Sum(nil))
+
+	// Compare the provided signature with the calculated one
+	// GitHub sends the signature as "sha256=<signature>"
+	return hmac.Equal([]byte(signature[7:]), []byte(expectedMAC))
+}
+
 // Function to handle the deployment in the background
 func deploy(project string, projectPath string) {
 
 	// Mark the project directory as safe for Git operations
-	// exec.Command("git", "config", "--global", "--add", "safe.directory", projectPath).Run()
+	exec.Command("git", "config", "--global", "--add", "safe.directory", projectPath).Run()
 
 	token := os.Getenv("GITHUB_TOKEN")
 	user := os.Getenv("GITHUB_USER")
@@ -52,10 +72,42 @@ func deploy(project string, projectPath string) {
 
 func deployHandler(project string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Read the secret from the environment variable
+		secret := os.Getenv("GITHUB_WEBHOOK_SECRET")
+		if secret == "" {
+			fmt.Println("Webhook secret not configured")
+			http.Error(w, "Webhook secret not configured", http.StatusInternalServerError)
+			return
+		}
+
+		// Get the signature from the request header
+		signature := r.Header.Get("X-Hub-Signature-256")
+		if signature == "" {
+			fmt.Println("(X-Hub-Signature-256) Signature missing")
+			http.Error(w, "Signature missing", http.StatusUnauthorized)
+			return
+		}
+
+		// Read the request body
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println("Could not read request body")
+			http.Error(w, "Could not read request body", http.StatusInternalServerError)
+			return
+		}
+
+		// Verify the HMAC signature
+		if !verifySignature(secret, signature, body) {
+			fmt.Println("Invalid signature")
+			http.Error(w, "Invalid signature", http.StatusUnauthorized)
+			return
+		}
+
+		// If the signature is valid, proceed with the webhook processing
 		var payload Payload
-		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		if err := json.Unmarshal(body, &payload); err != nil {
 			fmt.Println(fmt.Sprintf("Bad request for project %s: %v", project, err))
-			http.Error(w, "Bad Request", http.StatusBadRequest)
+			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
 
@@ -72,7 +124,7 @@ func deployHandler(project string) http.HandlerFunc {
 			projectPath := fmt.Sprintf("%s/%s", projectsFolder, project)
 
 			// Respond immediately to the webhook request to avoid GitHub timeout
-			fmt.Fprintf(w, "Webhook received. Deployment started for %s", project)
+			fmt.Fprintf(w, "Webhook verified. Deployment started for %s", project)
 
 			// Run the deployment process in the background
 			go deploy(project, projectPath)
