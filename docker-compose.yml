@@ -4,9 +4,10 @@ services:
   webhook:
     build: .
     ports:
-      - "9000:9000"  # Expose port 9000
+      - ${HTTP_PORT}:${HTTP_PORT}  # Expose port 9000
     restart: always
     environment:
+      - HTTP_PORT=${HTTP_PORT}
       - PROJECTS_FOLDER=${PROJECTS_FOLDER}  # Path to where the project folders are located
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GITHUB_USER=${GITHUB_USER}
