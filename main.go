@@ -151,8 +151,9 @@ func main() {
 	http.HandleFunc("/", rootHandler)
 
 	// Listen on port 9000
-	fmt.Println("Listening on :9000")
-	if err := http.ListenAndServe(":9000", nil); err != nil {
+	HTTP_PORT := os.Getenv("HTTP_PORT")
+	fmt.Printf("Listening on %s", HTTP_PORT)
+	if err := http.ListenAndServe(HTTP_PORT, nil); err != nil {
 		fmt.Println("Error:", err)
 	}
 }
