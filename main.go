@@ -84,7 +84,7 @@ func deployHandler(project string) http.HandlerFunc {
 		signature := r.Header.Get("X-Hub-Signature-256")
 		if signature == "" {
 			fmt.Println("(X-Hub-Signature-256) Signature missing")
-			http.Error(w, "Signature missing", http.StatusUnauthorized)
+			http.Error(w, "401 Unauthorized: Signature missing", http.StatusUnauthorized)
 			return
 		}
 
