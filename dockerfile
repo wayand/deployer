@@ -37,8 +37,8 @@ RUN curl -L "https://github.com/docker/compose/releases/download/v2.29.6/docker-
 # Copy the built binary from the previous build stage
 COPY --from=build /app/webhook .
 
-# Expose port 9000 for the webhook listener
-EXPOSE 9000
+# Expose port 9001 for the webhook listener
+EXPOSE 9001
 
 # Run the Go webhook application
 CMD ["./webhook"]

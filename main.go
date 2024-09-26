@@ -150,7 +150,7 @@ func main() {
 	http.HandleFunc("/invoicer", deployHandler("invoicer"))
 	http.HandleFunc("/", rootHandler)
 
-	// Listen on port 9000
+	// Listen on port 9001
 	HTTP_PORT := os.Getenv("HTTP_PORT")
 	fmt.Printf("Listening on %s", HTTP_PORT)
 	if err := http.ListenAndServe(HTTP_PORT, nil); err != nil {
